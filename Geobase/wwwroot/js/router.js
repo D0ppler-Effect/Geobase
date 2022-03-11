@@ -6,6 +6,7 @@ function Router(routes) {
             throw 'Error: routes parameter is mandatory';
         }
         this.constructor(routes);
+        this.init();
     } catch (e) {
         console.error(e);
     }
@@ -21,10 +22,11 @@ Router.prototype = {
     init: function() {
         var r = this.routes;
         (function(scope, r) {
-            window.addEventListener('hashChange', function(e) {
+            window.addEventListener('hashchange', function(e) {
                 scope.hasChanged(scope, r);
             });
         })(this, r);
+        this.hasChanged(this, r);
     },
     hasChanged: function(scope, routes) {
         if (window.location.hash.length > 0) {
