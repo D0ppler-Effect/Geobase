@@ -1,5 +1,7 @@
 ﻿'use strict';
 
+const ipLocationUrl = 'ip/location';
+
 (function() {
     function init() {
         var router = new Router([
@@ -10,3 +12,20 @@
 
     init();
 }());
+
+function GetIpLocation() {
+    var ipAddressTextBox = document.getElementById('ipAddressInput');
+
+    const ipAddress = ipAddressTextBox.value.trim();
+
+    var requestUrl = ipLocationUrl + "?ip=" + ipAddress;
+
+    fetch(requestUrl)
+        .then(response => response.json())
+        .then(data => displayResult(data));
+}
+
+function displayResult(resultData) {
+    var tBody = document.getElementById('results');
+    tBody.innerText = JSON.stringify(resultData);
+}
