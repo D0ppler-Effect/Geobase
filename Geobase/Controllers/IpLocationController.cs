@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Mq.Geobase.Models;
+using Mq.Geobase.Data;
 
 namespace Mq.Geobase.Controllers
 {
@@ -14,17 +15,19 @@ namespace Mq.Geobase.Controllers
 	{
 		private readonly ILogger<IpLocationController> _logger;
 
-		public IpLocationController(ILogger<IpLocationController> logger)
+		public IpLocationController(ILogger<IpLocationController> logger, IDataProvider dataProvider)
 		{
 			_logger = logger;
+			_dataProvider = dataProvider;
 		}
 
 		[HttpGet]
 		public Location Get(string ip)
 		{
-			var result = new Location {Coordinates = new Coordinates {Latitude = 1, Longitude = 1}};
-
+			var result = _dataProvider.GetLocationByIpAddress(ip);
 			return result;
 		}
+
+		private IDataProvider _dataProvider;
 	}
 }

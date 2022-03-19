@@ -25,7 +25,7 @@ namespace Mq.Geobase.Controllers
 		public IEnumerable<Location> Get(string city)
 		{
 			var result = _dataProvider.GetCityLocations(city);
-			return new[] {new Location {Coordinates = new Coordinates {Latitude = 2, Longitude = 2}}};
+			return result;
 		}
 
 		private IDataProvider _dataProvider;

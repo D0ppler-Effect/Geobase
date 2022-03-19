@@ -1,6 +1,7 @@
 ﻿'use strict';
 
 const ipLocationUrl = 'ip/location';
+const cityLocationsUrl = 'city/locations';
 
 (function() {
     function init() {
@@ -19,6 +20,18 @@ function GetIpLocation() {
     const ipAddress = ipAddressTextBox.value.trim();
 
     var requestUrl = ipLocationUrl + "?ip=" + ipAddress;
+
+    fetch(requestUrl)
+        .then(response => response.json())
+        .then(data => displayResult(data));
+}
+
+function GetCityLocations() {
+    var cityNameTextBox = document.getElementById('cityNameInput');
+
+    const cityName = cityNameTextBox.value.trim();
+
+    var requestUrl = cityLocationsUrl + "?city=" + cityName;
 
     fetch(requestUrl)
         .then(response => response.json())

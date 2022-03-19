@@ -8,14 +8,21 @@ namespace Mq.Geobase.Data
 {
 	public class DataProvider : IDataProvider
 	{
+		public DataProvider(IDatabase database)
+		{
+			_database = database;
+		}
+
 		public Location GetLocationByIpAddress(string ipAddress)
 		{
-			throw new NotImplementedException();
+			return _database.Locations[0];
 		}
 
 		public IEnumerable<Location> GetCityLocations(string city)
 		{
-			return new List<Location>();
+			return _database.Locations.Take(2);
 		}
+
+		private readonly IDatabase _database;
 	}
 }

@@ -29,6 +29,8 @@ namespace Mq.Geobase
 			services.AddControllers();
 
 			services.AddSingleton<IDataProvider, DataProvider>();
+
+			services.AddSingleton<IDatabase, LocalGeobase>();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

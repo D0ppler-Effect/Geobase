@@ -1,9 +1,18 @@
-﻿namespace Mq.Geobase.Models
+﻿using System;
+
+namespace Mq.Geobase.Models
 {
 	public class Location
 	{
+		public Location(byte[] rawBytes, int index)
+		{
+			_rawBytes = rawBytes;
+
+			Index = index;
+		}
+
 		// int - because database header 'records' field is typed int
-		public int Index { get; set; }
+		public int Index { get; }
 
 		public string Country { get; set; }
 
@@ -15,6 +24,8 @@
 
 		public string Organization { get; set; }
 
-		public Coordinates Coordinates { get; set; }
+		private byte[] _rawBytes;
+
+		public const byte SizeInBytes = 96;
 	}
 }
