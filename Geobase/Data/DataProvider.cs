@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using Mq.Geobase.Models;
 
 namespace Mq.Geobase.Data
@@ -15,12 +14,16 @@ namespace Mq.Geobase.Data
 
 		public Location GetLocationByIpAddress(string ipAddress)
 		{
-			return _database.Locations[0];
+			// find ip range given ip address belongs to and get location index
+
+			// retrieve location by index
+
+			return _database.Locations[0].Location.Value;
 		}
 
 		public IEnumerable<Location> GetCityLocations(string city)
 		{
-			return _database.Locations.Take(2);
+			return _database.Locations.Take(2).Select(l => l.Location.Value);
 		}
 
 		private readonly IDatabase _database;

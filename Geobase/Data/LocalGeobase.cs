@@ -1,8 +1,10 @@
 ﻿using Microsoft.Extensions.Configuration;
+using Mq.Geobase.Database.Entities;
 using Mq.Geobase.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Timers;
 
@@ -17,9 +19,11 @@ namespace Mq.Geobase.Data
 			Initialize();
 		}
 
-		public IReadOnlyList<IpRange> IpRanges => _ipRanges;
+		public IReadOnlyList<IpRangeBytesWrapper> IpRanges => _ipRanges;
 
-		public IReadOnlyList<Location> Locations => _locations;
+		public IReadOnlyList<LocationBytesWrapper> Locations => _locations;
+
+		public IReadOnlyList<int> LocationsIndex => _locationsIndex;
 
 		private void Initialize()
 		{
@@ -30,33 +34,56 @@ namespace Mq.Geobase.Data
 
 		private void ReadContents(string filePath)
 		{
-			var timeStart = DateTimeOffset.UtcNow;
+			DateTimeOffset timeStart = DateTimeOffset.UtcNow;
+			DateTimeOffset timeDbReady;
+			DateTimeOffset headerReady;
+			DateTimeOffset ipRangesReady;
 			using (var reader = new BinaryReader(File.Open(filePath, FileMode.Open)))
 			{
+				timeDbReady = DateTimeOffset.UtcNow;
+
 				_header = ReadHeader(reader);
 
-				_ipRanges = new IpRange[_header.Records];
+				headerReady = DateTimeOffset.UtcNow;
+
+				_ipRanges = new IpRangeBytesWrapper[_header.Records];
 				for (var i = 0; i < _header.Records; i++)
 				{
-					_ipRanges[i] = ReadIpRange(reader);
+					var rawData = reader.ReadBytes(IpRangeBytesWrapper.SizeInBytes);
+					_ipRanges[i] = new IpRangeBytesWrapper(rawData);
 				}
 
-				_locations = new Location[_header.Records];
+				ipRangesReady = DateTimeOffset.UtcNow;
+
+				_locations = new LocationBytesWrapper[_header.Records];
 				for (var i = 0; i < _header.Records; i++)
 				{
-					_locations[i] = ReadLocation(reader, i);
+					var index = (uint)(reader.BaseStream.Position - _header.Offset_locations);
+
+					var rawData = reader.ReadBytes(LocationBytesWrapper.SizeInBytes);
+					_locations[i] = new LocationBytesWrapper(rawData, index);
+				}
+
+				_locationsIndex = new int[_header.Records];
+				for (var i = 0; i < _header.Records; i++)
+				{
+					_locationsIndex[i] = reader.ReadInt32();
 				}
 			}
 
 			var timeEnd = DateTimeOffset.UtcNow;
 
-			var duration = timeEnd - timeStart;
+			var fileReadDuration = timeDbReady - timeStart;
+			var headerReadDuration = headerReady - timeDbReady;
+			var ipRangesReadDuration = ipRangesReady - headerReady;
+			var locationsReadDuration = timeEnd - ipRangesReady;
+			var totalDuration = timeEnd - timeStart;
 		}
 
 		private static DatabaseHeader ReadHeader(BinaryReader reader)
 		{
 			var version = reader.ReadInt32();
-			var name = ReadSbytes(reader, 32);
+			var name = reader.ReadSbytes(32);
 			var timestamp = reader.ReadUInt64();
 			var records = reader.ReadInt32();
 			var offset_ranges = reader.ReadUInt32();
@@ -67,42 +94,14 @@ namespace Mq.Geobase.Data
 
 			return header;
 		}
-
-		private static IpRange ReadIpRange(BinaryReader reader)
-		{
-			var range = new IpRange
-			{
-				IpFrom = reader.ReadUInt32(),
-				IpTo = reader.ReadUInt32(),
-				LocationIndex = reader.ReadUInt32()
-			};
-
-			return range;
-		}
-
-		private static Location ReadLocation(BinaryReader reader, int currentIndex)
-		{
-			var rawData = reader.ReadBytes(Location.SizeInBytes);
-
-			return new Location(rawData, currentIndex);
-		}
-
-		private static sbyte[] ReadSbytes(BinaryReader reader, int length)
-		{
-			var dataArray = new sbyte[length];
-			for(var i = 0; i< length; i++)
-			{
-				dataArray[i] = reader.ReadSByte();
-			}
-
-			return dataArray;
-		}
-
+				
 		private DatabaseHeader _header;
 
-		private IpRange[] _ipRanges;
+		private IpRangeBytesWrapper[] _ipRanges;
 
-		private Location[] _locations;
+		private LocationBytesWrapper[] _locations;
+
+		private int[] _locationsIndex;
 
 		private readonly IConfiguration _config;
 	}

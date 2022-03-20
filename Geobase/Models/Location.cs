@@ -1,31 +1,39 @@
-﻿using System;
-
-namespace Mq.Geobase.Models
+﻿namespace Mq.Geobase.Models
 {
 	public class Location
 	{
-		public Location(byte[] rawBytes, int index)
+		public Location(
+			uint index,
+			string country,
+			string region,
+			string postal,
+			string city,
+			string organisation,
+			float longitude,
+			float latitude)
 		{
-			_rawBytes = rawBytes;
-
 			Index = index;
+			Country = country;
+			Region = region;
+			Postal = postal;
+			City = city;
+			Organization = organisation;
+
+			Coordinates = new Coordinates(latitude, longitude);
 		}
 
-		// int - because database header 'records' field is typed int
-		public int Index { get; }
+		public uint Index { get; }
 
-		public string Country { get; set; }
+		public string Country { get; }
 
-		public string Region { get; set; }
+		public string Region { get; }
 
-		public string Postal { get; set; }
+		public string Postal { get; }
 
-		public string City { get; set; }
+		public string City { get; }
 
-		public string Organization { get; set; }
+		public string Organization { get; }
 
-		private byte[] _rawBytes;
-
-		public const byte SizeInBytes = 96;
+		public Coordinates Coordinates { get; }
 	}
 }

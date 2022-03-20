@@ -1,4 +1,5 @@
-﻿using Mq.Geobase.Models;
+﻿using Mq.Geobase.Database.Entities;
+using Mq.Geobase.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,8 +9,8 @@ namespace Mq.Geobase.Data
 {
 	public interface IDatabase
 	{
-		IReadOnlyList<IpRange> IpRanges { get; }
+		IReadOnlyList<IpRangeBytesWrapper> IpRanges { get; }
 
-		IReadOnlyList<Location> Locations { get; }
+		IReadOnlyList<LocationBytesWrapper> Locations { get; }
 	}
 }

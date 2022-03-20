@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Mq.Geobase.Data;
 using Mq.Geobase.Models;
+using Mq.Geobase.Database.Entities;
 
 namespace Mq.Geobase.Controllers
 {
