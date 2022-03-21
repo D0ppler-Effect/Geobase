@@ -14,5 +14,7 @@
 		public uint IpTo { get; set; }
 
 		public uint LocationIndex { get; set; }
+
+		public const byte DbRecordSizeInBytes = 12;
 	}
 }

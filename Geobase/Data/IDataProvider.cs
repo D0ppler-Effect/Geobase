@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using Mq.Geobase.Database.Entities;
 using Mq.Geobase.Models;
 
 namespace Mq.Geobase.Data

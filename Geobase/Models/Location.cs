@@ -3,7 +3,6 @@
 	public class Location
 	{
 		public Location(
-			uint index,
 			string country,
 			string region,
 			string postal,
@@ -12,7 +11,6 @@
 			float longitude,
 			float latitude)
 		{
-			Index = index;
 			Country = country;
 			Region = region;
 			Postal = postal;
@@ -21,8 +19,6 @@
 
 			Coordinates = new Coordinates(latitude, longitude);
 		}
-
-		public uint Index { get; }
 
 		public string Country { get; }
 
@@ -35,5 +31,7 @@
 		public string Organization { get; }
 
 		public Coordinates Coordinates { get; }
+
+		public const byte DbRecordSizeInBytes = 96;
 	}
 }
