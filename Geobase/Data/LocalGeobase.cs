@@ -21,17 +21,19 @@ namespace Mq.Geobase.Data
 
 		public Location GetLocationInfo(uint locationIndex)
 		{
+			var directAddress = _locationsIndex[(int)locationIndex];
+
 			using var stream = new MemoryStream(_locationsSection);
 			using (var reader = new BinaryReader(stream))
 			{
-				reader.BaseStream.Position = locationIndex;
+				reader.BaseStream.Position = directAddress;
 				return ReadSingleLocation(reader);
 			}
 		}
 
-		public IReadOnlyList<IpRange> IpRanges => ParsedIpRanges.Value;
+		public IpRange[] IpRanges => ParsedIpRanges.Value;
 
-		public IReadOnlyList<uint> LocationsIndex => _locationsIndex.OrderBy(k => k).ToList();
+		public uint[] LocationsIndex => _locationsIndex;
 
 		private void Initialize()
 		{
