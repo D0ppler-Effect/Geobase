@@ -18,34 +18,54 @@ namespace Mq.Geobase.Data
 			var parsedAddress = IPAddress.Parse(ipAddress);
 			var uintAddress = BitConverter.ToUInt32(parsedAddress.GetAddressBytes());
 
-			var ipRange = FindIpRange(_database.IpRanges.ToArray(), uintAddress);
-			var location = _database.GetLocationInfo(ipRange.LocationIndex);
+			var ipRangeIndex = BinaryFind(
+				_database.IpRanges,
+				uintAddress,
+				(address, i) =>
+					{
+						var middleElement = _database.IpRanges[i];
+						return middleElement.CompareIpAddress(address);
+					});
+
+			var location = _database.GetLocationInfo(_database.IpRanges[ipRangeIndex].LocationIndex);
 
 			return location;
 		}
 
-		public IEnumerable<Location> GetCityLocations(string city)
+		public IEnumerable<Location> GetCityLocations(string cityName)
 		{
-			throw new NotImplementedException();
+			var initialLocationIndex = BinaryFind(
+				_database.LocationsIndex,
+				cityName,
+				(city, i) =>
+					{
+						var locationInfo = _database.GetLocationInfo(i);
+						return city.CompareTo(locationInfo.City);
+					});
+
+			return null;
 		}
 
-		private static IpRange FindIpRange(IpRange[] collection, uint ipAddress)
+		private static int BinaryFind<TArrayType, TDesired>(
+			TArrayType[] arrayToSearch, 
+			TDesired desiredObject,
+			Func<TDesired, int, int> elementByIndexComparer)
 		{
 			int leftBorder = 0;
-			int rightBorder = collection.Length - 1;
+			int rightBorder = arrayToSearch.Length - 1;
 
 			while (leftBorder <= rightBorder)
 			{
 				var middle = leftBorder + (rightBorder - leftBorder) / 2; // avoid type overflow
-				var middleElement = collection[middle];
-				var comparsionResult = middleElement.CompareIpAddress(ipAddress);
+
+				var comparsionResult = elementByIndexComparer(desiredObject, middle);
 
 				if (comparsionResult == 0)
 				{
-					return middleElement;
+					return middle;
 				}
 
-				if(comparsionResult == -1)
+				if (comparsionResult == -1)
 				{
 					rightBorder = middle - 1;
 				}
@@ -55,9 +75,9 @@ namespace Mq.Geobase.Data
 				}
 			}
 
-			return null;
+			throw new Exception("Database search error");
 		}
-
+				
 		private readonly IDatabase _database;
 	}
 }

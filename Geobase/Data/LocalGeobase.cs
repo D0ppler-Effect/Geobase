@@ -19,9 +19,9 @@ namespace Mq.Geobase.Data
 			ParsedIpRanges = new Lazy<IpRange[]>(ParseIpRangesSection, true);
 		}
 
-		public Location GetLocationInfo(uint locationIndex)
+		public Location GetLocationInfo(int locationIndex)
 		{
-			var directAddress = _locationsIndex[(int)locationIndex];
+			var directAddress = _locationsIndex[locationIndex];
 
 			using var stream = new MemoryStream(_locationsSection);
 			using (var reader = new BinaryReader(stream))
@@ -29,6 +29,11 @@ namespace Mq.Geobase.Data
 				reader.BaseStream.Position = directAddress;
 				return ReadSingleLocation(reader);
 			}
+		}
+
+		public Location GetLocationInfo(uint locationIndex)
+		{
+			return GetLocationInfo((int)locationIndex);
 		}
 
 		public IpRange[] IpRanges => ParsedIpRanges.Value;

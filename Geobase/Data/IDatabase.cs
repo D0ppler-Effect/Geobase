@@ -10,6 +10,8 @@ namespace Mq.Geobase.Data
 
 		Location GetLocationInfo(uint locationIndex);
 
+		Location GetLocationInfo(int locationIndex);
+
 		uint[] LocationsIndex { get; }
 	}
 }
