@@ -1,5 +1,7 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.IO;
+using System.Net;
 using System.Text;
 
 namespace Mq.Geobase
@@ -21,6 +23,49 @@ namespace Mq.Geobase
 			}
 
 			return dataArray;
+		}
+
+		public static IPAddress ToIpAddress(this uint value)
+		{
+			var ipBytes = BitConverter.GetBytes(value);
+			var result = new IPAddress(ipBytes);
+
+			return result;
+		}
+
+		public static int? BinaryFind<TArrayType, TDesired>(
+			this TArrayType[] arrayToSearchWithin,
+			TDesired valueToSearchFor,
+			Func<TDesired, int, int> valueToElementByIndexCompareAction,
+			ILogger logger = null)
+		{
+			int leftBorder = 0;
+			int rightBorder = arrayToSearchWithin.Length - 1;
+
+			while (leftBorder <= rightBorder)
+			{
+				var middle = leftBorder + (rightBorder - leftBorder) / 2; // avoid type overflow
+
+				var comparsionResult = valueToElementByIndexCompareAction(valueToSearchFor, middle);
+
+				if (comparsionResult == 0)
+				{
+					return middle;
+				}
+
+				if (comparsionResult == -1)
+				{
+					rightBorder = middle - 1;
+				}
+				else
+				{
+					leftBorder = middle + 1;
+				}
+			}
+
+			logger?.LogWarning($"Error: desired value '{valueToSearchFor}' wasn't found in collection of type {typeof(TArrayType).FullName}");
+			
+			return null;
 		}
 	}
 }

@@ -27,9 +27,9 @@ namespace Mq.Geobase
 		{
 			services.AddControllers();
 
-			services.AddSingleton<IDataProvider, DataProvider>();
+			services.AddScoped<IGeoDataService, GeoDataService>();
 
-			services.AddSingleton<IDatabase, LocalGeobase>();
+			services.AddSingleton<IDatabase, BinaryLocalDatabase>();
 		}
 
 		public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

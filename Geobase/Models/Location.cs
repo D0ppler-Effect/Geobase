@@ -11,13 +11,18 @@
 			float longitude,
 			float latitude)
 		{
-			Country = country;
-			Region = region;
-			Postal = postal;
-			City = city;
-			Organization = organisation;
+			Country = country.Trim();
+			Region = region.Trim();
+			Postal = postal.Trim();
+			City = city.Trim();
+			Organization = organisation.Trim();
 
 			Coordinates = new Coordinates(latitude, longitude);
+		}
+
+		public override string ToString()
+		{
+			return $"[{Country} -> {Region} -> {Postal} -> {City} -> {Organization} -> {Coordinates}]";
 		}
 
 		public string Country { get; }

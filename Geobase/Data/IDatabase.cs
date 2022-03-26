@@ -1,5 +1,4 @@
 ﻿using Mq.Geobase.Models;
-using System;
 using System.Collections.Generic;
 
 namespace Mq.Geobase.Data
@@ -8,10 +7,8 @@ namespace Mq.Geobase.Data
 	{
 		IpRange[] IpRanges { get; }
 
-		Location GetLocationInfo(uint locationIndex);
+		Location GetLocationOfIpRange(IpRange ipRange);
 
-		Location GetLocationInfo(int locationIndex);
-
-		uint[] LocationsIndex { get; }
+		IEnumerable<Location> FindLocationsWithSameCity(string cityName);
 	}
 }

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Mq.Geobase.Models
+﻿namespace Mq.Geobase.Models
 {
 	public class IpRange
 	{
@@ -9,11 +7,6 @@ namespace Mq.Geobase.Models
 			IpFrom = ipFrom;
 			IpTo = ipTo;
 			LocationIndex = locationIndex;
-		}
-
-		public bool ContainsIp(uint ipAddress)
-		{
-			return ipAddress >= IpFrom && ipAddress <= IpTo;
 		}
 
 		public int CompareIpAddress(uint value)
@@ -30,6 +23,11 @@ namespace Mq.Geobase.Models
 			{
 				return 0;
 			}
+		}
+
+		public override string ToString()
+		{
+			return $"[{IpFrom.ToIpAddress()} - {IpTo.ToIpAddress()}]";
 		}
 
 		public uint IpFrom { get; set; }

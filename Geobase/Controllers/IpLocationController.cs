@@ -1,33 +1,52 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Mq.Geobase.Models;
 using Mq.Geobase.Data;
+using Mq.Geobase.Models;
+using System;
+using System.Net;
 
 namespace Mq.Geobase.Controllers
 {
 	[ApiController]
-	[Route("/ip/location")]
+	[Route(route)]
 	public class IpLocationController : ControllerBase
 	{
-		private readonly ILogger<IpLocationController> _logger;
-
-		public IpLocationController(ILogger<IpLocationController> logger, IDataProvider dataProvider)
+		public IpLocationController(ILogger<IpLocationController> logger, IGeoDataService dataProvider)
 		{
 			_logger = logger;
 			_dataProvider = dataProvider;
 		}
 
 		[HttpGet]
-		public Location Get(string ip)
+		public ActionResult<Location> Get(string ip)
 		{
-			var result = _dataProvider.GetLocationByIpAddress(ip);
-			return result;
+			try
+			{
+				_logger.LogInformation("Received GET request for '{0}' path with '{1}' ip address parameter", route, ip);
+
+				var parsedAddress = IPAddress.Parse(ip);
+				var result = _dataProvider.GetLocationByIpAddress(parsedAddress);
+
+				if (result == null)
+				{
+					return NotFound();
+				}
+
+				_logger.LogInformation("Responding with location '{0}' for request with ip address name '{1}'", result.ToString(), ip);
+
+				return result;
+			}
+			catch (Exception e)
+			{
+				_logger.LogError(e, "Failed to get location for ip address '{0}'", ip);
+				return StatusCode(500, e.Message);
+			}
 		}
 
-		private IDataProvider _dataProvider;
+		private IGeoDataService _dataProvider;
+
+		private readonly ILogger<IpLocationController> _logger;
+
+		public const string route = "/ip/location";
 	}
 }
