@@ -6,9 +6,9 @@ using System.Net;
 
 namespace Mq.Geobase.Data
 {
-	public class GeoDataService : IGeoDataService
+	public class LocationService : ILocationService
 	{
-		public GeoDataService(IDatabase database, ILogger<GeoDataService> logger)
+		public LocationService(IDatabase database, ILogger<LocationService> logger)
 		{
 			_database = database;
 			_logger = logger;
@@ -47,7 +47,7 @@ namespace Mq.Geobase.Data
 			return result;
 		}
 
-		private readonly ILogger<GeoDataService> _logger;
+		private readonly ILogger<LocationService> _logger;
 
 		private readonly IDatabase _database;
 	}

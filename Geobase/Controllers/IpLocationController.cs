@@ -11,7 +11,7 @@ namespace Mq.Geobase.Controllers
 	[Route(route)]
 	public class IpLocationController : ControllerBase
 	{
-		public IpLocationController(ILogger<IpLocationController> logger, IGeoDataService dataProvider)
+		public IpLocationController(ILogger<IpLocationController> logger, ILocationService dataProvider)
 		{
 			_logger = logger;
 			_dataProvider = dataProvider;
@@ -43,7 +43,7 @@ namespace Mq.Geobase.Controllers
 			}
 		}
 
-		private IGeoDataService _dataProvider;
+		private ILocationService _dataProvider;
 
 		private readonly ILogger<IpLocationController> _logger;
 

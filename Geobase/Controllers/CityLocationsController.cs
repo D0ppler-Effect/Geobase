@@ -12,7 +12,7 @@ namespace Mq.Geobase.Controllers
 	[Route(route)]
 	public class CityLocationsController : ControllerBase
 	{
-		public CityLocationsController(ILogger<CityLocationsController> logger, IGeoDataService dataProvider)
+		public CityLocationsController(ILogger<CityLocationsController> logger, ILocationService dataProvider)
 		{
 			_logger = logger;
 			_dataProvider = dataProvider;
@@ -45,7 +45,7 @@ namespace Mq.Geobase.Controllers
 
 		private readonly ILogger<CityLocationsController> _logger;
 
-		private IGeoDataService _dataProvider;
+		private ILocationService _dataProvider;
 
 		public const string route = "/city/locations";
 	}

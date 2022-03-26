@@ -4,7 +4,7 @@ using System.Net;
 
 namespace Mq.Geobase.Data
 {
-	public interface IGeoDataService
+	public interface ILocationService
 	{
 		public Location GetLocationByIpAddress(IPAddress ipAddress);
 
