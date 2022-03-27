@@ -8,12 +8,20 @@ namespace Mq.Geobase
 {
 	public static class Extensions
 	{
+		/// <summary>
+		/// converts array of sbytes to ASCII string
+		/// </summary>
 		public static string ConvertToAsciiString(this sbyte[] sbyteArray)
 		{
 			var byteArray = Array.ConvertAll(sbyteArray, b => (byte)b);
 			return Encoding.ASCII.GetString(byteArray).TrimEnd('\0');
 		}
 
+		/// <summary>
+		/// Read an sbyte section of given length
+		/// </summary>
+		/// <param name="reader">a BinaryReader to read from</param>
+		/// <param name="length">desired length</param>
 		public static sbyte[] ReadSbytes(this BinaryReader reader, int length)
 		{
 			var dataArray = new sbyte[length];
@@ -25,6 +33,9 @@ namespace Mq.Geobase
 			return dataArray;
 		}
 
+		/// <summary>
+		/// Parse uint into system.IO IPAddress type
+		/// </summary>
 		public static IPAddress ToIpAddress(this uint value)
 		{
 			var ipBytes = BitConverter.GetBytes(value);
@@ -33,6 +44,17 @@ namespace Mq.Geobase
 			return result;
 		}
 
+		/// <summary>
+		/// Performs a binary search on given array
+		/// </summary>
+		/// <typeparam name="TArrayType">Type of elements in given array</typeparam>
+		/// <typeparam name="TDesired">Type of value to look for</typeparam>
+		/// <param name="arrayToSearchWithin">Array to be searched</param>
+		/// <param name="valueToSearchFor">Argument being passed to a function used to compare values with middle element of array</param>
+		/// <param name="valueToElementByIndexCompareAction">Equality criteria, called on middle element of array for every search iteration,
+		/// returns -1, 0, 1 to determine further search direction</param>
+		/// <param name="logger">Optional logger</param>
+		/// <returns>Index of array element which, being passed to a valueToElementByIndexCompareAction, returns 0. Returns null if nothing found.</returns>
 		public static int? BinaryFind<TArrayType, TDesired>(
 			this TArrayType[] arrayToSearchWithin,
 			TDesired valueToSearchFor,
@@ -44,22 +66,22 @@ namespace Mq.Geobase
 
 			while (leftBorder <= rightBorder)
 			{
-				var middle = leftBorder + (rightBorder - leftBorder) / 2; // avoid type overflow
+				var middleIndex = leftBorder + (rightBorder - leftBorder) / 2; // avoid type overflow
 
-				var comparsionResult = valueToElementByIndexCompareAction(valueToSearchFor, middle);
+				var comparsionResult = valueToElementByIndexCompareAction(valueToSearchFor, middleIndex);
 
 				if (comparsionResult == 0)
 				{
-					return middle;
+					return middleIndex;
 				}
 
 				if (comparsionResult == -1)
 				{
-					rightBorder = middle - 1;
+					rightBorder = middleIndex - 1;
 				}
 				else
 				{
-					leftBorder = middle + 1;
+					leftBorder = middleIndex + 1;
 				}
 			}
 

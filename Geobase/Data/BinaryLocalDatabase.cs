@@ -16,8 +16,9 @@ namespace Mq.Geobase.Data
 			_config = config;
 			_logger = logger;
 
-			Initialize();
+			ReadContents(_config.GetValue<string>("DatabaseSettings:AbsoluteFilePath"));
 
+			// Lazy implementation as an attempt to speed-up initial database reading process
 			ParsedIpRanges = new Lazy<IpRange[]>(ParseIpRangesSection, true);
 		}
 
@@ -25,7 +26,7 @@ namespace Mq.Geobase.Data
 		{
 			_logger.LogInformation("Retrieving location info for ipRange '{0}' from binary database", ipRange.ToString());
 
-			var directAddress = _locationsIndex[ipRange.LocationIndex];
+			var directAddress = _locationDirectAddresses[ipRange.LocationIndex];
 
 			return GetLocationInfoByDirectAddress(directAddress);
 		}
@@ -35,14 +36,17 @@ namespace Mq.Geobase.Data
 			_logger.LogInformation("Scanning binary database for locations whithin city '{0}'", cityName);
 			var resultLocations = new List<Location>();
 
+			// find first occurence of a location with given city in locationindex array
+			// for every middle element we read location from memory-stored database info and check city field
 			_logger.LogInformation("Retrieving first occured location within city '{0}'", cityName);
-			var initialLocationIndexWithGivenCity = _locationsIndex.BinaryFind(
+			var initialLocationIndexWithGivenCity = _locationDirectAddresses.BinaryFind(
 				cityName,
-				(city, i) =>
+				(city, middleIndex) =>
 				{
-					var locationInfoToCheck = GetLocationInfoByIndex(i);
+					var locationInfoToCheck = GetLocationInfoByIndex(middleIndex);
 					return city.CompareTo(locationInfoToCheck.City);
-				});
+				},
+				_logger);
 
 			if (!initialLocationIndexWithGivenCity.HasValue)
 			{
@@ -52,13 +56,13 @@ namespace Mq.Geobase.Data
 
 			_logger.LogInformation("Found first location info whithin city '{0}', scanning ordered location index for more", cityName);
 
-			// search left
+			// move left over locationindex array for same city-based locations
 			var leftPartTask = Task.Run(() => ScanLocations(
 			   initialLocationIndexWithGivenCity.Value,
 			   cityName,
 			   i => i - 1));
 
-			// search right
+			// move right over locationindex array for same city-based locations
 			var rightPartTask = Task.Run(() => ScanLocations(
 			   initialLocationIndexWithGivenCity.Value,
 			   cityName,
@@ -66,6 +70,7 @@ namespace Mq.Geobase.Data
 
 			Task.WaitAll(leftPartTask, rightPartTask);
 
+			// preserve original elemants order
 			resultLocations.AddRange(leftPartTask.Result.Reverse());
 			resultLocations.Add(GetLocationInfoByIndex(initialLocationIndexWithGivenCity.Value));
 			resultLocations.AddRange(rightPartTask.Result);
@@ -76,11 +81,9 @@ namespace Mq.Geobase.Data
 
 		public IpRange[] IpRanges => ParsedIpRanges.Value;
 
-		private void Initialize()
-		{
-			ReadContents(_config.GetValue<string>("DatabaseSettings:AbsoluteFilePath"));
-		}
-
+		/// <summary>
+		/// Read file contents into memory. First, read and parse header, then fast read main sections into byte arrays for further parsing.
+		/// </summary>
 		private void ReadContents(string filePath)
 		{
 			_logger.LogInformation("Starting to read database contents from file {0}", filePath);
@@ -102,10 +105,10 @@ namespace Mq.Geobase.Data
 
 				_locationsSection = reader.ReadBytes(Location.DbRecordSizeInBytes * Header.Records);
 
-				_locationsIndex = new uint[Header.Records];
+				_locationDirectAddresses = new uint[Header.Records];
 				for (var i = 0; i < Header.Records; i++)
 				{
-					_locationsIndex[i] = reader.ReadUInt32();
+					_locationDirectAddresses[i] = reader.ReadUInt32();
 				}
 			}
 
@@ -130,13 +133,20 @@ namespace Mq.Geobase.Data
 			}
 		}
 
+		/// <summary>
+		/// Get location info by array index of its direct address
+		/// </summary>
+		/// <param name="locationIndex">Index of location direct address in locationDirectAddresses array</param>
 		private Location GetLocationInfoByIndex(int locationIndex)
 		{
-			var directAddress = _locationsIndex[locationIndex];
+			var directAddress = _locationDirectAddresses[locationIndex];
 
 			return GetLocationInfoByDirectAddress(directAddress);
 		}
 
+		/// <summary>
+		/// Read location info from binary data using its direct address
+		/// </summary>
 		private Location GetLocationInfoByDirectAddress(uint directAddress)
 		{
 			using var stream = new MemoryStream(_locationsSection);
@@ -147,6 +157,13 @@ namespace Mq.Geobase.Data
 			}
 		}
 
+		/// <summary>
+		/// Move over locations index while location contains given city and store locations to resulting collection
+		/// </summary>
+		/// <param name="startIndex">Initial location index to start from</param>
+		/// <param name="cityName">Desired city name</param>
+		/// <param name="indexMutationFunc">A function that determines search direction</param>
+		/// <returns>Collection of discovered locations</returns>
 		private IEnumerable<Location> ScanLocations(int startIndex, string cityName, Func<int, int> indexMutationFunc)
 		{
 			var resultLocations = new List<Location>();
@@ -158,7 +175,7 @@ namespace Mq.Geobase.Data
 			{
 				currentIndex = indexMutationFunc(currentIndex);
 				
-				if(currentIndex < 0 || currentIndex >= _locationsIndex.Length)
+				if(currentIndex < 0 || currentIndex >= _locationDirectAddresses.Length)
 				{
 					break;
 				}
@@ -177,6 +194,10 @@ namespace Mq.Geobase.Data
 			return resultLocations;
 		}
 
+		/// <summary>
+		/// Read single location from binary data
+		/// </summary>
+		/// <param name="reader">A BinaryReader to read from</param>
 		private static Location ReadSingleLocation(BinaryReader reader)
 		{
 			var country = reader.ReadSbytes(8).ConvertToAsciiString();
@@ -190,6 +211,10 @@ namespace Mq.Geobase.Data
 			return new Location(country, region, postal, city, organization, longitude, latitude);
 		}
 
+		/// <summary>
+		/// Read single ip range info from binary data
+		/// </summary>
+		/// <param name="reader">A BinaryReader to read from</param>
 		private static IpRange ReadSingleIpRange(BinaryReader reader)
 		{
 			var ipFrom = reader.ReadUInt32();
@@ -207,7 +232,7 @@ namespace Mq.Geobase.Data
 
 		private byte[] _locationsSection;
 
-		private uint[] _locationsIndex;
+		private uint[] _locationDirectAddresses;
 
 		private readonly IConfiguration _config;
 
