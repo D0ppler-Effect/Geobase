@@ -17,9 +17,6 @@ namespace Mq.Geobase.Data
 			_logger = logger;
 
 			ReadContents(_config.GetValue<string>("DatabaseSettings:AbsoluteFilePath"));
-
-			// Lazy implementation as an attempt to speed-up initial database reading process
-			ParsedIpRanges = new Lazy<IpRange[]>(ParseIpRangesSection, true);
 		}
 
 		public Location GetLocationOfIpRange(IpRange ipRange)
@@ -79,10 +76,11 @@ namespace Mq.Geobase.Data
 			return resultLocations;
 		}
 
-		public IpRange[] IpRanges => ParsedIpRanges.Value;
+		public IpRange[] IpRanges => _ipRanges;
 
 		/// <summary>
-		/// Read file contents into memory. First, read and parse header, then fast read main sections into byte arrays for further parsing.
+		/// Read file contents into memory. Locations info is storead as raw byte array for performance reasons (we've got location direct addresses index, so we can afford it).
+		/// Average database reading time was between 22 and 28 milliseconds
 		/// </summary>
 		private void ReadContents(string filePath)
 		{
@@ -101,7 +99,11 @@ namespace Mq.Geobase.Data
 
 				Header = new DatabaseHeader(version, name, timestamp, records, offset_ranges, offset_cities, offset_locations);
 
-				_ipRangesSection = reader.ReadBytes(IpRange.DbRecordSizeInBytes * Header.Records);
+				_ipRanges = new IpRange[Header.Records];
+				for (var i = 0; i < Header.Records; i++)
+				{
+					_ipRanges[i] = ReadSingleIpRange(reader);
+				}
 
 				_locationsSection = reader.ReadBytes(Location.DbRecordSizeInBytes * Header.Records);
 
@@ -116,21 +118,6 @@ namespace Mq.Geobase.Data
 			var totalDurationInMs = (timeEnd - timeStart).TotalMilliseconds;
 
 			_logger.LogInformation("Database reading completed in {0}ms", (int)totalDurationInMs);
-		}
-
-		private IpRange[] ParseIpRangesSection()
-		{
-			using var stream = new MemoryStream(_ipRangesSection);
-			using (var reader = new BinaryReader(stream))
-			{
-				var result = new IpRange[Header.Records];
-				for (var i = 0; i < Header.Records; i++)
-				{
-					result[i] = ReadSingleIpRange(reader);
-				}
-
-				return result;
-			}
 		}
 
 		/// <summary>
@@ -226,9 +213,7 @@ namespace Mq.Geobase.Data
 
 		private DatabaseHeader Header { get; set; }
 
-		private Lazy<IpRange[]> ParsedIpRanges { get; }
-
-		private byte[] _ipRangesSection;
+		private IpRange[] _ipRanges;
 
 		private byte[] _locationsSection;
 

@@ -14,7 +14,7 @@ namespace Mq.Geobase.Models
 			uint offset_locations)
 		{
 			Version = version;
-			Name = new Lazy<string>(() => name.ConvertToAsciiString(), true);
+			Name = name.ConvertToAsciiString();
 			Timestamp = timestamp;
 			Records = records;
 			Offset_cities = offset_cities;
@@ -24,7 +24,7 @@ namespace Mq.Geobase.Models
 
 		public int Version { get; }
 
-		public Lazy<string> Name { get; }
+		public string Name { get; }
 
 		public ulong Timestamp { get; } 
 
