@@ -14,22 +14,30 @@ const cityLocationsUrl = 'city/locations';
     init();
 }());
 
-function GetIpLocation() {
+function getIpLocation() {
     var ipAddressTextBox = document.getElementById('ipAddressInput');
-
     var ipAddress = ipAddressTextBox.value.trim();
+
+    if (!ipAddress) {
+        displayInputError('Please provide a value to find');
+        return;
+    }
+    if (!validateIPaddress(ipAddress)) {
+        displayInputError('Invalid ip address format');
+        return;
+	}
 
     var requestUrl = ipLocationUrl + "?ip=" + ipAddress;
 
     fetch(requestUrl).then(r => processResponse(r));
 }
 
-function GetCityLocations() {
+function getCityLocations() {
     var cityNameTextBox = document.getElementById('cityNameInput');
     var cityName = cityNameTextBox.value.trim();
 
     if (!cityName) {
-        displayEmptyInput();
+        displayInputError('Please provide a value to find');
         return;
 	}
 
@@ -55,9 +63,17 @@ function processResponse(response) {
     }
 }
 
-function displayEmptyInput() {
+function validateIPaddress(ipaddress) {
+    if (/^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(ipaddress)) {
+        return (true)
+    }
+    
+    return (false)
+}
+
+function displayInputError(errorText) {
     var tBody = document.getElementById('results');
-    tBody.innerHTML = '<p class="errorMessage"> Please provide a value to find </p>';
+    tBody.innerHTML = '<p class="errorMessage">' + errorText + '</p>';
 }
 
 function displayBadRequest(responseText) {

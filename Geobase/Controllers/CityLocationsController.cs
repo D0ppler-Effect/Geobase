@@ -19,7 +19,7 @@ namespace Mq.Geobase.Controllers
 		}
 
 		[HttpGet]
-		public ActionResult<IEnumerable<Location>> Get(string city)
+		public ActionResult<List<Location>> Get(string city)
 		{
 			try
 			{
@@ -34,13 +34,22 @@ namespace Mq.Geobase.Controllers
 					return NotFound();
 				}
 
-				return result;
+				return SortResults(result).ToList();
 			}
 			catch (Exception e)
 			{
 				_logger.LogError(e, "Failed to get locations for city '{0}'", city);
 				return StatusCode(500, e.Message);
 			}
+		}
+
+		private static IEnumerable<Location> SortResults(IEnumerable<Location> collection)
+		{
+			return collection
+				.OrderBy(l => l.Country)
+				.ThenBy(l => l.Region)
+				.ThenBy(l => l.City)
+				.ThenBy(l => l.Organization);
 		}
 
 		private readonly ILogger<CityLocationsController> _logger;
