@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Mq.Geobase.Models;
 using System;
@@ -11,12 +12,15 @@ namespace Mq.Geobase.Data
 {
 	public class BinaryLocalDatabase : IDatabase
 	{
-		public BinaryLocalDatabase(IConfiguration config, ILogger<BinaryLocalDatabase> logger)
+		public BinaryLocalDatabase(IConfiguration config, IWebHostEnvironment _environment, ILogger<BinaryLocalDatabase> logger)
 		{
 			_config = config;
 			_logger = logger;
 
-			ReadContents(_config.GetValue<string>("DatabaseSettings:AbsoluteFilePath"));
+			var contentPath = _environment.ContentRootPath;
+			var relativeDatabasePath = _config.GetValue<string>("DatabaseSettings:RelativeFilePath");
+
+			ReadContents(Path.Combine(contentPath, relativeDatabasePath));
 		}
 
 		public Location GetLocationOfIpRange(IpRange ipRange)
@@ -85,6 +89,11 @@ namespace Mq.Geobase.Data
 		private void ReadContents(string filePath)
 		{
 			_logger.LogInformation("Starting to read database contents from file {0}", filePath);
+
+			if (!File.Exists(filePath))
+			{
+				throw new FileNotFoundException("Cannot find database file", filePath);
+			}
 
 			DateTimeOffset timeStart = DateTimeOffset.UtcNow;
 			using (var reader = new BinaryReader(File.Open(filePath, FileMode.Open)))
