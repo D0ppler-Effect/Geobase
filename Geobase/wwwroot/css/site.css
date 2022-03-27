@@ -17,7 +17,6 @@ body {
     overflow-x: hidden;
 }
 
-/* The navigation menu links */
 .sidebar a {
     padding: 8px 8px 8px 16px;
     text-decoration: none;
@@ -32,7 +31,6 @@ body {
     text-align: center;
 }
 
-/* When you mouse over the navigation links, change their color */
 .sidebar a:hover {
     color: #f1f1f1;
 }
