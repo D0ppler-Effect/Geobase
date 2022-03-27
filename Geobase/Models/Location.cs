@@ -7,7 +7,7 @@
 			string region,
 			string postal,
 			string city,
-			string organisation,
+			string organization,
 			float longitude,
 			float latitude)
 		{
@@ -15,7 +15,7 @@
 			Region = region.Trim();
 			Postal = postal.Trim();
 			City = city.Trim();
-			Organization = organisation.Trim();
+			Organization = organization.Trim();
 
 			Coordinates = new Coordinates(latitude, longitude);
 		}

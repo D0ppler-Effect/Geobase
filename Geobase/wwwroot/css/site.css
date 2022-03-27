@@ -1,23 +1,35 @@
-﻿.sidebar {
+﻿* {
+    font-family: sans-serif, system-ui;
+}
+
+body {
+    margin: 0px;
+}
+
+.sidebar {
     height: 100%;
     width: 250px; 
-    position: fixed; /* Stay in place */
-    z-index: 1; /* Stay on top */
-    top: 0; /* Stay at the top */
+    position: fixed; 
+    z-index: 1; 
+    top: 0; 
     left: 0;
-    background-color: #111; /* Black*/
+    background-color: black; 
     overflow-x: hidden;
-    padding-top: 50px;
 }
 
 /* The navigation menu links */
 .sidebar a {
-    padding: 8px 8px 8px 32px;
+    padding: 8px 8px 8px 16px;
     text-decoration: none;
     font-size: 25px;
     color: #818181;
     display: block;
-    transition: 0.3s;
+    transition: 1s;
+}
+
+.sidebar h1 {
+    color: antiquewhite;
+    text-align: center;
 }
 
 /* When you mouse over the navigation links, change their color */
@@ -25,7 +37,27 @@
     color: #f1f1f1;
 }
 
+.errorMessage {
+    color: red;
+}
+
+#results {
+    margin-top: 10px;
+}
+
 #main {
-    padding: 0px 10px;
+    padding: 10px;
     margin-left: 250px;
+    margin-top: 20px;
+}
+
+#results table {    
+    width: 100%;
+    border-collapse: collapse;
+    border: 2px solid green;
+}
+
+#results table td,th {
+    padding: 10px;
+    letter-spacing: 1px;
 }

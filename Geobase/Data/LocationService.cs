@@ -16,7 +16,7 @@ namespace Mq.Geobase.Data
 
 		public Location GetLocationByIpAddress(IPAddress ipAddress)
 		{
-			_logger.LogInformation("Searching for location info for given ip address: {0}", ipAddress);
+			_logger.LogInformation("Searching location info for given ip address: {0}", ipAddress);
 			var uintAddress = BitConverter.ToUInt32(ipAddress.GetAddressBytes());
 						
 			var ipRangeIndex = _database.IpRanges.BinaryFind(

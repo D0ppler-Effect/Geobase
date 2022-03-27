@@ -35,7 +35,7 @@ namespace Mq.Geobase.Data
 			_logger.LogInformation("Scanning binary database for locations whithin city '{0}'", cityName);
 			var resultLocations = new List<Location>();
 
-			_logger.LogDebug("Retrieving first occured location within city '{0}'", cityName);
+			_logger.LogInformation("Retrieving first occured location within city '{0}'", cityName);
 			var initialLocationIndexWithGivenCity = _locationsIndex.BinaryFind(
 				cityName,
 				(city, i) =>
@@ -50,7 +50,7 @@ namespace Mq.Geobase.Data
 				return resultLocations;
 			}
 
-			_logger.LogDebug("Found first location info whithin city '{0}', scanning ordered location index for more", cityName);
+			_logger.LogInformation("Found first location info whithin city '{0}', scanning ordered location index for more", cityName);
 
 			// search left
 			var leftPartTask = Task.Run(() => ScanLocations(
