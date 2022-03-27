@@ -24,7 +24,11 @@ namespace Mq.Geobase.Controllers
 			{
 				_logger.LogInformation("Received GET request for '{0}' path with '{1}' ip address parameter", route, ip);
 
-				var parsedAddress = IPAddress.Parse(ip);
+				if(!IPAddress.TryParse(ip, out var parsedAddress))
+				{
+					return BadRequest("Invalid ip address provided!");
+				}
+
 				var result = _dataProvider.GetLocationByIpAddress(parsedAddress);
 
 				if (result == null)

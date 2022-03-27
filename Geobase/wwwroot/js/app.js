@@ -17,7 +17,7 @@ const cityLocationsUrl = 'city/locations';
 function GetIpLocation() {
     var ipAddressTextBox = document.getElementById('ipAddressInput');
 
-    const ipAddress = ipAddressTextBox.value.trim();
+    var ipAddress = ipAddressTextBox.value.trim();
 
     var requestUrl = ipLocationUrl + "?ip=" + ipAddress;
 
@@ -26,8 +26,12 @@ function GetIpLocation() {
 
 function GetCityLocations() {
     var cityNameTextBox = document.getElementById('cityNameInput');
+    var cityName = cityNameTextBox.value.trim();
 
-    const cityName = cityNameTextBox.value.trim();
+    if (!cityName) {
+        displayEmptyInput();
+        return;
+	}
 
     var requestUrl = cityLocationsUrl + "?city=" + cityName;
 
@@ -40,6 +44,9 @@ function processResponse(response) {
     if (response.status == 200) {
         response.json().then(data => displayResult(data));
     }
+    else if (response.status == 400) {
+        response.text().then(text => displayBadRequest(text));
+    }
     else if (response.status == 404) {
         displayNotFound();
     }
@@ -48,9 +55,18 @@ function processResponse(response) {
     }
 }
 
+function displayEmptyInput() {
+    var tBody = document.getElementById('results');
+    tBody.innerHTML = '<p class="errorMessage"> Please provide a value to find </p>';
+}
+
+function displayBadRequest(responseText) {
+    var tBody = document.getElementById('results');
+    tBody.innerHTML = '<p class="errorMessage"> Bad request: ' + responseText + ' </p>';
+}
+
 function displayNotFound() {
     var tBody = document.getElementById('results');
-    tBody.innerHTML = '';
     tBody.innerHTML = '<p class="errorMessage"> Results not found </p>';
 }
 
@@ -58,7 +74,6 @@ function displayOops(responseText) {
     console.log(responseText);
 
     var tBody = document.getElementById('results');
-    tBody.innerHTML = '';
     tBody.innerHTML = '<p class="errorMessage"> Oops! Something went wrong :\'( </p>';
 }
 
