@@ -18,6 +18,8 @@ namespace Mq.Geobase
 
 		public void ConfigureServices(IServiceCollection services)
 		{
+			services.AddCors();
+
 			services.AddControllers();
 
 			services.AddTransient<ILocationService, LocationService>();
@@ -38,6 +40,8 @@ namespace Mq.Geobase
 			app.UseHttpsRedirection();
 
 			app.UseRouting();
+
+			app.UseCors(builder => builder.AllowAnyOrigin());
 
 			app.UseAuthorization();
 
