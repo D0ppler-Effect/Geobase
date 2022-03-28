@@ -14,6 +14,9 @@ namespace Mq.Geobase.Data
 			_logger = logger;
 		}
 		
+		/// <summary>
+		/// Finds ip range that includes given ip address, then finds location of this ip range
+		/// </summary>
 		public Location GetLocationByIpAddress(IPAddress ipAddress)
 		{
 			_logger.LogInformation("Searching location info for given ip address: {0}", ipAddress);
@@ -40,6 +43,9 @@ namespace Mq.Geobase.Data
 			return location;
 		}
 
+		/// <summary>
+		/// Finds all locations that include given city name
+		/// </summary>
 		public IEnumerable<Location> GetCityLocations(string cityName)
 		{
 			_logger.LogInformation("Searching for locations whithin city '{0}'", cityName);

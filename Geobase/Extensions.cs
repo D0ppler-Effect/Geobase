@@ -50,8 +50,8 @@ namespace Mq.Geobase
 		/// <typeparam name="TArrayType">Type of elements in given array</typeparam>
 		/// <typeparam name="TDesired">Type of value to look for</typeparam>
 		/// <param name="arrayToSearchWithin">Array to be searched</param>
-		/// <param name="valueToSearchFor">Argument being passed to a function used to compare values with middle element of array</param>
-		/// <param name="valueToElementByIndexCompareAction">Equality criteria, called on middle element of array for every search iteration,
+		/// <param name="valueToSearchFor">Argument being passed to a function used for comparsion</param>
+		/// <param name="valueToElementByIndexCompareAction">Comparsion criteria, called on middle element of array for every search iteration,
 		/// returns -1, 0, 1 to determine further search direction</param>
 		/// <param name="logger">Optional logger</param>
 		/// <returns>Index of array element which, being passed to a valueToElementByIndexCompareAction, returns 0. Returns null if nothing found.</returns>

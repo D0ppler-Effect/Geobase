@@ -23,6 +23,9 @@ namespace Mq.Geobase.Data
 			ReadContents(Path.Combine(contentPath, relativeDatabasePath));
 		}
 
+		/// <summary>
+		/// Uses iprange's LocationIndex field to directly read location info from binary data
+		/// </summary>
 		public Location GetLocationOfIpRange(IpRange ipRange)
 		{
 			_logger.LogInformation("Retrieving location info for ipRange '{0}' from binary database", ipRange.ToString());
@@ -32,13 +35,16 @@ namespace Mq.Geobase.Data
 			return GetLocationInfoByDirectAddress(directAddress);
 		}
 
+		/// <summary>
+		/// Finds first occurence of location with given city name, then searches both left+right on location index ordered by city name
+		/// </summary>
 		public IEnumerable<Location> FindLocationsWithSameCity(string cityName)
 		{
 			_logger.LogInformation("Scanning binary database for locations whithin city '{0}'", cityName);
 			var resultLocations = new List<Location>();
 
 			// find first occurence of a location with given city in locationindex array
-			// for every middle element we read location from memory-stored database info and check city field
+			// for every middle'th element we read location from binary data and check city field
 			_logger.LogInformation("Retrieving first occured location within city '{0}'", cityName);
 			var initialLocationIndexWithGivenCity = _locationDirectAddresses.BinaryFind(
 				cityName,

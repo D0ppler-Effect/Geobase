@@ -22,7 +22,7 @@
 
 		public override string ToString()
 		{
-			return $"[{Country} -> {Region} -> {Postal} -> {City} -> {Organization} -> {Coordinates}]";
+			return $"[{Country} -> {Region} -> {Postal} -> {City} -> {Organization} -> {Coordinates}]"; // used mostly for logging. Looks lighter than 'ToJson()' approach.
 		}
 
 		public string Country { get; }

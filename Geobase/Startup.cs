@@ -41,7 +41,7 @@ namespace Mq.Geobase
 
 			app.UseRouting();
 
-			app.UseCors(builder => builder.AllowAnyOrigin()); // this is a test app, so allow any origins
+			app.UseCors(builder => builder.AllowAnyOrigin()); // this is a test app, so allow any origin
 
 			app.UseAuthorization();
 
