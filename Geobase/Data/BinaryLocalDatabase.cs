@@ -84,7 +84,7 @@ namespace Mq.Geobase.Data
 
 		/// <summary>
 		/// Read file contents into memory. Locations info is storead as raw byte array for performance reasons (we've got location direct addresses index, so we can afford it).
-		/// Average database reading time was between 22 and 28 milliseconds
+		/// Average database reading time (while laptop is on AC power) was between 22 and 28 milliseconds
 		/// </summary>
 		private void ReadContents(string filePath)
 		{
